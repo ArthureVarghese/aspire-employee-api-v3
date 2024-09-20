@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.aspire.employee_api_v3.exceptions.PageNumberException;
+import com.aspire.employee_api_v3.view.GenericResponse;
 import com.aspire.employee_api_v3.view.StreamList;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,6 @@ public class EmployeeApiController {
 
     @GetMapping("/employees")
     public ResponseEntity<?> getEmployeeDetails(@RequestParam(required = false)String letter, @RequestParam(defaultValue = "1")String page) throws IllegalArgumentException {
-        // Pass the list of employee-manager pairs to the service
         return employeeApiService.getEmployeeDetails(letter,validateAndReturnPageNumber(page));
     }
 
@@ -39,6 +39,14 @@ public class EmployeeApiController {
         int number = Integer.parseInt(pageNumber) - 1;
         if(number < 0) throw new PageNumberException("Value Cannot be less than 1");
         return number;
+    }
+
+
+    @PutMapping(path="/employees/manager",produces = "application/json")
+    public ResponseEntity<GenericResponse> updateEmployeeManager(
+        @RequestParam(required = true) Integer employeeId, @RequestParam(required = true) Integer managerId
+    ){
+        return employeeApiService.updateEmployeeManager(employeeId,managerId);
     }
 
     
