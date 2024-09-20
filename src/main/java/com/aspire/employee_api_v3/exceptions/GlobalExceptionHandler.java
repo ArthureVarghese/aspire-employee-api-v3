@@ -29,4 +29,11 @@ public class GlobalExceptionHandler {
     public GenericResponse handleAllOtherException(Exception ex){
         return new GenericResponse("Unknown Error Occurred!");
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
+    public GenericResponse handleLetterLength(IllegalArgumentException e){
+        return new GenericResponse("Invalid number of characters for letter");
+    }
+
 }

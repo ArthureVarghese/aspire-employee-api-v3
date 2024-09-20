@@ -1,6 +1,5 @@
 package com.aspire.employee_api_v3.service;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.aspire.employee_api_v3.model.Employee;
@@ -18,10 +17,6 @@ import org.springframework.stereotype.Service;
 import com.aspire.employee_api_v3.model.Stream;
 import com.aspire.employee_api_v3.repository.StreamJpaRepository;
 import com.aspire.employee_api_v3.view.StreamList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
 
 @Service
@@ -33,32 +28,27 @@ public class EmployeeApiService {
     @Autowired
     StreamJpaRepository streamJpaRepository;
 
-    public ResponseEntity<EmployeeResponse> getEmployeeDetails(String letter, Integer page) {
+    public ResponseEntity<EmployeeResponse> getEmployeeDetails(String letter, Integer page) throws IllegalArgumentException {
 
-        List<Employee> employee=Collections.emptyList();
-        try{
-            Pageable pageRequest = PageRequest.of(page-1, 25);
-            Page<Employee> employees;
-            EmployeeResponse response;
-            if (letter == null) {
-                employees = employeeRepo.findAll(pageRequest);
-                response = new EmployeeResponse(employees.getContent(),null);
-            }
-            else if(letter.length()!=1)
-            {
-                throw new Exception("A single value expected");
-            }
-            else {
-                employee = employeeRepo.findByNameStartingWith(letter,pageRequest);
-                response = new EmployeeResponse(employee,null);
-                if(employee.isEmpty())
-                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        Pageable pageRequest = PageRequest.of(page, 25);
+        Page<Employee> employees;
+        EmployeeResponse response;
+        if (letter == null) {
+            employees = employeeRepo.findAll(pageRequest);
+            response = new EmployeeResponse(employees.getContent());
         }
-        catch(Exception e){
-            return new ResponseEntity<>(new EmployeeResponse(employee,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        else if(letter.length()!=1)
+        {
+            throw new IllegalArgumentException("Invalid letter length");
         }
+        else {
+            List<Employee> employee = employeeRepo.findByNameStartingWith(letter,pageRequest);
+            response = new EmployeeResponse(employee);
+            if(employee.isEmpty())
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        
     }
 
 
