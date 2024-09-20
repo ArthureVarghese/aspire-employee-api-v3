@@ -21,9 +21,9 @@ public class EmployeeApiController {
     EmployeeApiService employeeApiService;
 
     @GetMapping("/employees")
-    public ResponseEntity<?> getEmployeeDetails(@RequestParam(required = false)String letter, @RequestParam(defaultValue = "1")Integer page) {
+    public ResponseEntity<?> getEmployeeDetails(@RequestParam(required = false)String letter, @RequestParam(defaultValue = "1")String page) throws IllegalArgumentException {
         // Pass the list of employee-manager pairs to the service
-        return employeeApiService.getEmployeeDetails(letter,page);
+        return employeeApiService.getEmployeeDetails(letter,validateAndReturnPageNumber(page));
     }
 
     @GetMapping(path = "/streams", produces = "application/json")
@@ -40,5 +40,7 @@ public class EmployeeApiController {
         if(number < 0) throw new PageNumberException("Value Cannot be less than 1");
         return number;
     }
+
+    
 
 }

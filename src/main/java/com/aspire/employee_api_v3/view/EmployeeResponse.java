@@ -14,5 +14,4 @@ import lombok.NoArgsConstructor;
 public class EmployeeResponse {
 
     List<Employee> employees;
-    String error;
 }

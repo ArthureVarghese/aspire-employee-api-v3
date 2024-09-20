@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,11 +40,11 @@ public class EmployeeApiServiceTest {
 
     
     @Test
-    void testGetEmployeeDetails_WithLetter() {
+    void testGetEmployeeDetails_WithLetter() throws Exception {
         List<Employee> employees = Collections.singletonList(mockEmployee);
         when(employeeRepo.findByNameStartingWith("S", PageRequest.of(0, 25))).thenReturn(employees);
         
-        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails("S",1);
+        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails("S",0);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         EmployeeResponse responseBody = response.getBody();
@@ -52,11 +54,11 @@ public class EmployeeApiServiceTest {
     }
 
     @Test
-    void testGetEmployeeDetails_NoLetter() {
+    void testGetEmployeeDetails_NoLetter() throws Exception {
         List<Employee> employees = Collections.singletonList(mockEmployee);
         when(employeeRepo.findAll( PageRequest.of(0, 25))).thenReturn(new PageImpl<>(employees));
         
-        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails(null,1);
+        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails(null,0);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         EmployeeResponse responseBody = response.getBody();
@@ -66,11 +68,17 @@ public class EmployeeApiServiceTest {
     }
 
     @Test
-    void testGetEmployeeDetails_InvalidLetter() {
+    void testGetEmployeeDetails_InvalidLetter() throws Exception {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            mainService.getEmployeeDetails("AB", 0);
+        });        
+        assertThat(exception.getMessage()).isEqualTo("Invalid letter length");
+
+
         List<Employee> employees=Collections.emptyList();
         when(employeeRepo.findByNameStartingWith("K", PageRequest.of(0, 25))).thenReturn(employees);
         
-        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails("K",1);
+        ResponseEntity<EmployeeResponse> response = mainService.getEmployeeDetails("K",0);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
         EmployeeResponse responseBody = response.getBody();
