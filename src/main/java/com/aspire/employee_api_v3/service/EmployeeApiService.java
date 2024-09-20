@@ -5,6 +5,7 @@ import java.util.List;
 import com.aspire.employee_api_v3.model.Employee;
 import com.aspire.employee_api_v3.repository.EmployeeJpaRepository;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
+import com.aspire.employee_api_v3.view.GenericResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,4 +59,35 @@ public class EmployeeApiService {
         Page<Stream> streams = streamJpaRepository.findAll(PageRequest.of(pageNumber, PAGE_SIZE));
         return new StreamList(streams.stream().toList());
     }
+
+
+    public ResponseEntity<GenericResponse> updateEmployeeManager(Integer employeeId, Integer managerId) {
+
+        Employee employee=employeeRepo.findById(employeeId).orElse(null);
+        if(employee==null)
+            return new ResponseEntity<>(new GenericResponse("No employee Found"),HttpStatus.NOT_FOUND);
+        if(employee.getManagerId()==0)
+            return new ResponseEntity<>(new GenericResponse("Manager id of a manager can't be changed"),HttpStatus.BAD_REQUEST);
+
+        Employee currentManager=employeeRepo.findById(employee.getManagerId()).orElse(null);
+        if(currentManager==null)
+            return new ResponseEntity<>(new GenericResponse("No Current Manager Found"),HttpStatus.NOT_FOUND);
+        if(currentManager.getId()==managerId)
+            return new ResponseEntity<>(new GenericResponse("Current Manager same as New manager"),HttpStatus.CONFLICT);
+
+        Employee newManager=employeeRepo.findById(managerId).orElse(null);
+        if(newManager==null)
+            return new ResponseEntity<>(new GenericResponse("No Manager Found"),HttpStatus.NOT_FOUND);
+        if(newManager.getManagerId()!=0){
+            return new ResponseEntity<>(new GenericResponse("Provided manager id doesn't belong to a manager"),HttpStatus.BAD_REQUEST);
+        }
+
+        employee.setManagerId(managerId);
+        employee.setStreamId(newManager.getStreamId());
+        employee.setAccountId(newManager.getAccountId());
+        employeeRepo.save(employee);
+        
+        return new ResponseEntity<>(new GenericResponse(employee.getName()+"'s manager details has been updated"),HttpStatus.OK);
+    }
+
 }
