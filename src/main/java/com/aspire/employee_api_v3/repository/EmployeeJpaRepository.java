@@ -3,6 +3,7 @@ package com.aspire.employee_api_v3.repository;
 import java.util.List;
 
 import com.aspire.employee_api_v3.model.Employee;
+import com.aspire.employee_api_v3.model.Stream;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,8 @@ public interface EmployeeJpaRepository extends JpaRepository<Employee, Integer> 
     List<Employee> findByManagerId(Integer managerId);
 
     List<Employee> findEmployeesByManagerId(Integer managerId);
+
+    Employee findByStreamAndManagerId(Stream stream, Integer managerId);
 
 }
 

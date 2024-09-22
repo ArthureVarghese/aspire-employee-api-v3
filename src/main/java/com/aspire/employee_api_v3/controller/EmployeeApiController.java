@@ -49,6 +49,15 @@ public class EmployeeApiController {
         return employeeApiService.updateEmployeeManager(employeeId,managerId);
     }
 
+    @PutMapping(path="/employees/account",produces = "application/json")
+    public ResponseEntity<GenericResponse> updateEmployeeAccountName(
+        @RequestParam(required = true) Integer employeeId, @RequestParam(required = true) String accountName, @RequestParam(required = true) String streamId
+    ){
+        return employeeApiService.updateEmployeeAccountName(employeeId,accountName,streamId);
+    }
+
+
+
     
 
 }
