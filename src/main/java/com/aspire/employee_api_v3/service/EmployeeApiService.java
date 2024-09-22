@@ -70,21 +70,24 @@ public class EmployeeApiService {
 
     public ResponseEntity<GenericResponse> updateEmployeeManager(Integer employeeId, Integer managerId) {
 
-        Employee employee=employeeRepo.findById(employeeId).orElse(null);
-        if(employee==null)
-            return new ResponseEntity<>(new GenericResponse("No employee Found"),HttpStatus.NOT_FOUND);
+        Employee employee = employeeRepo.findById(employeeId)
+            .orElseThrow(() -> new EntityNotFoundException("No employee Found"));
+
+        if(employeeId==managerId)
+            return new ResponseEntity<>(new GenericResponse("Employee id and manager id can't be same"), HttpStatus.BAD_REQUEST);
+
         if(employee.getManagerId()==0)
             return new ResponseEntity<>(new GenericResponse("Manager id of a manager can't be changed"),HttpStatus.BAD_REQUEST);
 
-        Employee currentManager=employeeRepo.findById(employee.getManagerId()).orElse(null);
-        if(currentManager==null)
-            return new ResponseEntity<>(new GenericResponse("No Current Manager Found"),HttpStatus.NOT_FOUND);
+        Employee currentManager=employeeRepo.findById(employee.getManagerId())
+            .orElseThrow(() -> new EntityNotFoundException("No Current Manager Found"));
+
         if(currentManager.getId()==managerId)
             return new ResponseEntity<>(new GenericResponse("Current Manager same as New manager"),HttpStatus.CONFLICT);
 
-        Employee newManager=employeeRepo.findById(managerId).orElse(null);
-        if(newManager==null)
-            return new ResponseEntity<>(new GenericResponse("No Manager Found"),HttpStatus.NOT_FOUND);
+        Employee newManager=employeeRepo.findById(managerId)
+            .orElseThrow(() -> new EntityNotFoundException("No Manager Found"));
+        
         if(newManager.getManagerId()!=0){
             return new ResponseEntity<>(new GenericResponse("Provided manager id doesn't belong to a manager"),HttpStatus.BAD_REQUEST);
         }
@@ -95,6 +98,7 @@ public class EmployeeApiService {
         employeeRepo.save(employee);
         
         return new ResponseEntity<>(new GenericResponse(employee.getName()+"'s manager details has been updated"),HttpStatus.OK);
+        
     }
 
 
