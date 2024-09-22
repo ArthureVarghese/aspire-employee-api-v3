@@ -143,13 +143,11 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_InValidEmployeeId() {
-        when(employeeJpaRepository.findById(2)).thenReturn(Optional.empty());
 
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(2,3);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("No employee Found");
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            employeeApiService.updateEmployeeManager(2,3);
+        });        
+        assertThat(exception.getMessage()).isEqualTo("No employee Found");
 
     }
 
@@ -181,17 +179,16 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_InvalidManagerId() {
+
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(employeeJpaRepository.findById(3)).thenReturn(Optional.empty());
         
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            employeeApiService.updateEmployeeManager(2,3);;
+        });        
+        assertThat(exception.getMessage()).isEqualTo("No Manager Found");
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(2,3);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("No Manager Found");
-
     }
 
     @Test
@@ -208,7 +205,6 @@ public class EmployeeApiServiceTest {
         assertThat(responseBody.getMessage()).isEqualTo("Provided manager id doesn't belong to a manager");
 
     }
-
     @Test
     public void testUpdateEmployeeAccountName_ValidEmployeeData(){
 

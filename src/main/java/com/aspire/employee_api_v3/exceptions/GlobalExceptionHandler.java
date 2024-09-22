@@ -33,12 +33,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public GenericResponse handleLetterLength(IllegalArgumentException e){
         return new GenericResponse("Invalid number of characters for letter");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public GenericResponse handleEntityNotFound(EntityNotFoundException ex){
         return new GenericResponse(ex.getMessage());
