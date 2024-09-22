@@ -64,5 +64,6 @@ INSERT INTO aspire.employee (`id`, `name`, `stream_id`, `account_id`, `manager_i
 (57, 'Stella Johnson', 'IND-ASP-CC-SALES', 'IND-ASP-CC', 51, 'Associate'),
 (58, 'Sienna Lee', 'IND-ASP-CS-SALES', 'IND-ASP-CS', 52, 'Associate'),
 (59, 'Oliver Morgan', 'IND-ASP-ML-SALES', 'IND-ASP-ML', 53, 'Associate'),
-(60, 'Simon Taylor', 'IND-ASP-SAAS-SALES', 'IND-ASP-SAAS', 54, 'Associate');
+(60, 'Simon Taylor', 'IND-ASP-SAAS-SALES', 'IND-ASP-SAAS', 54, 'Associate'),
+(61, 'Percy Jackson', 'IND-ASP-AI-TESTING', 'IND-ASP-AI', 0, 'Manager');
 

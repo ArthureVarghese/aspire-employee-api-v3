@@ -2,7 +2,9 @@ package com.aspire.employee_api_v3.service;
 
 import java.util.List;
 
+import com.aspire.employee_api_v3.model.Account;
 import com.aspire.employee_api_v3.model.Employee;
+import com.aspire.employee_api_v3.repository.AccountJpaRepository;
 import com.aspire.employee_api_v3.repository.EmployeeJpaRepository;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
 import com.aspire.employee_api_v3.view.GenericResponse;
@@ -14,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import com.aspire.employee_api_v3.model.Stream;
 import com.aspire.employee_api_v3.repository.StreamJpaRepository;
@@ -28,6 +32,9 @@ public class EmployeeApiService {
 
     @Autowired
     StreamJpaRepository streamJpaRepository;
+
+    @Autowired
+    AccountJpaRepository accountJpaRepository;
 
     public ResponseEntity<EmployeeResponse> getEmployeeDetails(String letter, Integer page) throws IllegalArgumentException {
 
@@ -83,11 +90,53 @@ public class EmployeeApiService {
         }
 
         employee.setManagerId(managerId);
-        employee.setStreamId(newManager.getStreamId());
-        employee.setAccountId(newManager.getAccountId());
+        employee.setStream(newManager.getStream());
+        employee.setAccount(newManager.getAccount());
         employeeRepo.save(employee);
         
         return new ResponseEntity<>(new GenericResponse(employee.getName()+"'s manager details has been updated"),HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<GenericResponse> updateEmployeeAccountName(Integer employeeId, String accountName,
+            String streamId) {
+
+        Employee employee = employeeRepo.findById(employeeId)
+            .orElseThrow(() -> new EntityNotFoundException("No employee Found"));        
+            
+        Account account=accountJpaRepository.findByName(accountName)
+            .orElseThrow(() -> new EntityNotFoundException("Account Name doesn't exist"));
+        
+        if(employee.getAccount().getId()==account.getId())
+            return new ResponseEntity<>(new GenericResponse("Employee belongs to the given account"),HttpStatus.CONFLICT);
+
+        Stream stream=streamJpaRepository.findById(streamId)
+            .orElseThrow(() -> new EntityNotFoundException("Stream doesn't exist"));
+        
+        if(!stream.getAccount().getId().equalsIgnoreCase(account.getId()))
+            return new ResponseEntity<>(new GenericResponse("Account and stream doesn't match"),HttpStatus.CONFLICT);
+        
+        Employee streamManager=employeeRepo.findByStreamAndManagerId(stream,0);
+        if(employee.getManagerId()==0){
+
+            if(streamManager!=null)
+                return new ResponseEntity<>(new GenericResponse("Manager already exists for the given stream"),HttpStatus.BAD_REQUEST);
+
+            List<Employee> employeesManagedByManager=employeeRepo.findByManagerId(employeeId);
+
+            if(!employeesManagedByManager.isEmpty())
+                return new ResponseEntity<>(new GenericResponse("Account name of a manager with subbordinates can't be updated"),HttpStatus.BAD_REQUEST);
+            
+        }
+
+        employee.setAccount(account);
+        employee.setStream(stream);
+        if(employee.getManagerId()!=0){
+            employee.setManagerId(streamManager.getId());
+        }
+        employeeRepo.save(employee);
+            
+        return new ResponseEntity<>(new GenericResponse(employee.getName()+"'s account details has been updated"),HttpStatus.OK);
     }
 
 }

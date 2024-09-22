@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -34,6 +36,12 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public GenericResponse handleLetterLength(IllegalArgumentException e){
         return new GenericResponse("Invalid number of characters for letter");
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseBody
+    public GenericResponse handleEntityNotFound(EntityNotFoundException ex){
+        return new GenericResponse(ex.getMessage());
     }
 
 }
