@@ -14,6 +14,7 @@ import com.aspire.employee_api_v3.repository.StreamJpaRepository;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
 import com.aspire.employee_api_v3.view.GenericResponse;
 
+import com.aspire.employee_api_v3.view.StreamList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -368,6 +370,16 @@ public class EmployeeApiServiceTest {
     
     }
 
+    @Test
+    public void testGetStreams() {
 
+        Page<Stream> page = new PageImpl<>(List.of(mockStream), PageRequest.of(0, 25), 1);
+
+        when(streamJpaRepository.findAll(PageRequest.of(0, 25)))
+                .thenReturn(page);
+        StreamList streamList = employeeApiService.getAllStreams(0);
+        assertThat(streamList).isNotNull();
+        assertThat(streamList.getStreams().size()).isEqualTo(1);
+    }
 
 }

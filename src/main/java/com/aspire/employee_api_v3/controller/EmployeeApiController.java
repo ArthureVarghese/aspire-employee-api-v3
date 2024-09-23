@@ -15,54 +15,52 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/v3", produces = "application/json")
+@RequestMapping (path = "/api/v3", produces = "application/json")
 public class EmployeeApiController {
 
     @Autowired
     EmployeeApiService employeeApiService;
 
-    @GetMapping(path="/employees", produces = "application/json")
+    @GetMapping (path="/employees", produces = "application/json")
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
-    public EmployeeResponse getEmployeeDetails(@RequestParam(required = false)String letter, @RequestParam(defaultValue = "1")String page) throws IllegalArgumentException {
-        return employeeApiService.getEmployeeDetails(letter,validateAndReturnPageNumber(page));
+    public EmployeeResponse getEmployeeDetails(@RequestParam (required = false) String letter, @RequestParam (defaultValue = "1") String page) throws IllegalArgumentException {
+        return employeeApiService.getEmployeeDetails(letter, parseAndValidatePageNumber(page));
     }
 
-    @GetMapping(path = "/streams", produces = "application/json")
+    @GetMapping (path = "/streams", produces = "application/json")
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public StreamList getStreams(
-            @RequestParam(name = "page-number", required = false, defaultValue = "1") String pageNumber
-    ){
-        return employeeApiService.getAllStreams(validateAndReturnPageNumber(pageNumber));
+            @RequestParam (name = "page-number", required = false, defaultValue = "1") String pageNumber) {
+        return employeeApiService.getAllStreams(parseAndValidatePageNumber(pageNumber));
     }
 
-    @PutMapping(path="/employees/manager",produces = "application/json")
+    @PutMapping (path = "/employees/manager", produces = "application/json")
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public GenericResponse updateEmployeeManager(
-        @RequestParam(required = true) Integer employeeId, @RequestParam(required = true) Integer managerId
-    ){
-        return employeeApiService.updateEmployeeManager(employeeId,managerId);
+            @RequestParam (required = true) Integer employeeId, @RequestParam (required = true) Integer managerId
+    ) {
+        return employeeApiService.updateEmployeeManager(employeeId, managerId);
     }
 
-    @PutMapping(path="/employees/account",produces = "application/json")
+    @PutMapping (path = "/employees/account", produces = "application/json")
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public GenericResponse updateEmployeeAccountName(
-        @RequestParam(required = true) Integer employeeId, @RequestParam(required = true) String accountName, @RequestParam(required = true) String streamId
-    ){
-        return employeeApiService.updateEmployeeAccountName(employeeId,accountName,streamId);
+            @RequestParam (required = true) Integer employeeId, @RequestParam (required = true) String accountName, @RequestParam (required = true) String streamId
+    ) {
+        return employeeApiService.updateEmployeeAccountName(employeeId, accountName, streamId);
     }
 
-    private int validateAndReturnPageNumber(String pageNumber){
-        int number = Integer.parseInt(pageNumber) - 1;
-        if(number < 0) throw new PageNumberException("Value Cannot be less than 1");
+    // Throws error if page number is non-numeric or less than 0
+    private int parseAndValidatePageNumber(String pageNumber) {
+        int number = Integer.parseInt(pageNumber);
+        // zero based index adjustment
+        number -= 1;
+        if (number < 0) throw new PageNumberException("Value Cannot be less than 1");
         return number;
     }
-
-
-
-    
 
 }
