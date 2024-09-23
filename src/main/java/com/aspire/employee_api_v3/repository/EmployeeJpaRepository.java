@@ -17,8 +17,6 @@ public interface EmployeeJpaRepository extends JpaRepository<Employee, Integer> 
 
     List<Employee> findByManagerId(Integer managerId);
 
-    List<Employee> findEmployeesByManagerId(Integer managerId);
-
     Employee findByStreamAndManagerId(Stream stream, Integer managerId);
 
 }
