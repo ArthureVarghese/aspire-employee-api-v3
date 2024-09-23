@@ -66,7 +66,7 @@ public class EmployeeApiService {
         Employee employee = employeeRepo.findById(employeeId)
             .orElseThrow(() -> new EntityNotFoundException("No employee Found"));
 
-        if(employeeId==managerId)
+        if(employeeId.equals(managerId))
             throw new CustomException("Employee id and manager id can't be same");
 
         if(employee.getManagerId()==0)
@@ -75,7 +75,7 @@ public class EmployeeApiService {
         Employee currentManager=employeeRepo.findById(employee.getManagerId())
             .orElseThrow(() -> new EntityNotFoundException("No Current Manager Found"));
 
-        if(currentManager.getId()==managerId)
+        if(currentManager.getId().equals(managerId))
             throw new CustomException("Current Manager same as New manager");
 
         Employee newManager=employeeRepo.findById(managerId)

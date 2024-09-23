@@ -24,8 +24,11 @@ public class EmployeeApiController {
     @GetMapping (path="/employees", produces = "application/json")
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
-    public EmployeeResponse getEmployeeDetails(@RequestParam (required = false) String letter, @RequestParam (defaultValue = "1") String page) throws IllegalArgumentException {
-        return employeeApiService.getEmployeeDetails(letter, parseAndValidatePageNumber(page));
+    public EmployeeResponse getEmployeeDetails(@RequestParam (name="starts-with",required = false) String letter, @RequestParam (name="page",defaultValue = "1") String page) throws IllegalArgumentException {
+        // return employeeApiService.getEmployeeDetails(letter, parseAndValidatePageNumber(page));
+        EmployeeResponse employeeresponse = employeeApiService.getEmployeeDetails(letter,parseAndValidatePageNumber(page));
+        System.out.print(employeeresponse);
+        return employeeresponse;
     }
 
     @GetMapping (path = "/streams", produces = "application/json")
@@ -40,7 +43,7 @@ public class EmployeeApiController {
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public GenericResponse updateEmployeeManager(
-            @RequestParam (required = true) Integer employeeId, @RequestParam (required = true) Integer managerId
+            @RequestParam (name = "employee-id",required = true) Integer employeeId, @RequestParam (name="manager-id",required = true) Integer managerId
     ) {
         return employeeApiService.updateEmployeeManager(employeeId, managerId);
     }
@@ -49,7 +52,7 @@ public class EmployeeApiController {
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public GenericResponse updateEmployeeAccountName(
-            @RequestParam (required = true) Integer employeeId, @RequestParam (required = true) String accountName, @RequestParam (required = true) String streamId
+            @RequestParam (name="employee-id",required = true) Integer employeeId, @RequestParam (name="account-name",required = true) String accountName, @RequestParam (name="stream-id",required = true) String streamId
     ) {
         return employeeApiService.updateEmployeeAccountName(employeeId, accountName, streamId);
     }
