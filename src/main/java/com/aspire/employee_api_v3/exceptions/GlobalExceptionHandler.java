@@ -24,14 +24,6 @@ public class GlobalExceptionHandler {
         return new GenericResponse("Invalid Value for Page Number");
     }
 
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public GenericResponse handleAllOtherException(Exception ex){
-        return new GenericResponse("Unknown Error Occurred!");
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
@@ -44,6 +36,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public GenericResponse customException(CustomException ex){
         return new GenericResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public GenericResponse handleAllOtherException(Exception ex){
+        return new GenericResponse("Unknown Error Occurred!");
     }
 
 }

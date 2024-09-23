@@ -19,5 +19,7 @@ public interface EmployeeJpaRepository extends JpaRepository<Employee, Integer> 
 
     Employee findByStreamAndManagerId(Stream stream, Integer managerId);
 
+    boolean existsByManagerId(Integer managerId);
+
 }
 
