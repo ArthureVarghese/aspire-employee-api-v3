@@ -32,17 +32,17 @@ public class GlobalExceptionHandler {
         return new GenericResponse("Unknown Error Occurred!");
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public GenericResponse handleLetterLength(IllegalArgumentException e){
-        return new GenericResponse("Invalid number of characters for letter");
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public GenericResponse handleEntityNotFound(EntityNotFoundException ex){
+        return new GenericResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(CustomException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public GenericResponse customException(CustomException ex){
         return new GenericResponse(ex.getMessage());
     }
 
