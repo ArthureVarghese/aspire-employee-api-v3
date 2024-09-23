@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.aspire.employee_api_v3.exceptions.CustomException;
 import com.aspire.employee_api_v3.model.Account;
 import com.aspire.employee_api_v3.model.Employee;
 import com.aspire.employee_api_v3.model.Stream;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,10 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+
 
 import jakarta.persistence.EntityNotFoundException;
+
 
 public class EmployeeApiServiceTest {
 
@@ -71,18 +74,16 @@ public class EmployeeApiServiceTest {
         List<Employee> employees = Collections.singletonList(mockEmployee);
         when(employeeJpaRepository.findByNameStartingWith("S", PageRequest.of(0, 25))).thenReturn(employees);
         
-        ResponseEntity<EmployeeResponse> response = employeeApiService.getEmployeeDetails("S",0);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        EmployeeResponse response = employeeApiService.getEmployeeDetails("S",0);
 
-        EmployeeResponse responseBody = response.getBody();
-        assertThat(responseBody).isNotNull();
-        assertThat(responseBody.getEmployees().size()).isEqualTo(1);  
-        assertThat(responseBody.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
-        assertThat(responseBody.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
-        assertThat(responseBody.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
-        assertThat(responseBody.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
-        assertThat(responseBody.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
-        assertThat(responseBody.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
+        assertThat(response).isNotNull();
+        assertThat(response.getEmployees().size()).isEqualTo(1);  
+        assertThat(response.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
+        assertThat(response.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
+        assertThat(response.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
+        assertThat(response.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
+        assertThat(response.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
+        assertThat(response.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
 
     }
 
@@ -91,38 +92,27 @@ public class EmployeeApiServiceTest {
         List<Employee> employees = Collections.singletonList(mockEmployee);
         when(employeeJpaRepository.findAll( PageRequest.of(0, 25))).thenReturn(new PageImpl<>(employees));
         
-        ResponseEntity<EmployeeResponse> response = employeeApiService.getEmployeeDetails(null,0);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        EmployeeResponse responseBody = response.getBody();
-        assertThat(responseBody).isNotNull();
-        assertThat(responseBody.getEmployees().size()).isEqualTo(1);  
-        assertThat(responseBody.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
-        assertThat(responseBody.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
-        assertThat(responseBody.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
-        assertThat(responseBody.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
-        assertThat(responseBody.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
-        assertThat(responseBody.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
+        EmployeeResponse response = employeeApiService.getEmployeeDetails(null,0);
+        
+        assertThat(response).isNotNull();
+        assertThat(response.getEmployees().size()).isEqualTo(1);  
+        assertThat(response.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
+        assertThat(response.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
+        assertThat(response.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
+        assertThat(response.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
+        assertThat(response.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
+        assertThat(response.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
 
     }
 
     @Test
     public void testGetEmployeeDetails_InvalidLetter() throws Exception {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            employeeApiService.getEmployeeDetails("AB", 0);
-        });        
-        assertThat(exception.getMessage()).isEqualTo("Invalid letter length");
-
-
-        List<Employee> employees=Collections.emptyList();
-        when(employeeJpaRepository.findByNameStartingWith("K", PageRequest.of(0, 25))).thenReturn(employees);
         
-        ResponseEntity<EmployeeResponse> response = employeeApiService.getEmployeeDetails("K",0);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
-        EmployeeResponse responseBody = response.getBody();
-        assertThat(responseBody).isNotNull();
-        assertThat(responseBody.getEmployees()).isEqualTo(employees);
+        when(employeeJpaRepository.findByNameStartingWith("K", PageRequest.of(0, 25))).thenReturn(Collections.emptyList());
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            employeeApiService.getEmployeeDetails("K",0);
+        });        
+        assertThat(exception.getMessage()).isEqualTo("No employee with given credentials");
 
     }
 
@@ -133,11 +123,10 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(employeeJpaRepository.findById(3)).thenReturn(Optional.of(mockEmployee2));
 
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(2,3);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        GenericResponse response=employeeApiService.updateEmployeeManager(2,3);
 
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Carlos's manager details has been updated");
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("Carlos's manager details has been updated");
 
     }
 
@@ -152,14 +141,27 @@ public class EmployeeApiServiceTest {
     }
 
     @Test
+    public void testUpdateEmployeeManager_SameEmployeeIdAndManagerId() {
+        when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
+        
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeManager(1,1);;
+        });
+        
+        assertThat(exception.getMessage()).isEqualTo("Employee id and manager id can't be same");
+
+    }
+
+
+    @Test
     public void testUpdateEmployeeManager_EmployeeISAManager() {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(1,3);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Manager id of a manager can't be changed");
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeManager(1,3);;
+        });
+        
+        assertThat(exception.getMessage()).isEqualTo("Manager id of a manager can't be changed");
 
     }
 
@@ -168,12 +170,11 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeManager(2,1);;
+        });
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(2,1);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Current Manager same as New manager");
+        assertThat(exception.getMessage()).isEqualTo("Current Manager same as New manager");
 
     }
 
@@ -197,12 +198,11 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(4)).thenReturn(Optional.of(mockEmployee3));
         
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeManager(2,4);;
+        });
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeManager(2,4);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Provided manager id doesn't belong to a manager");
+        assertThat(exception.getMessage()).isEqualTo("Provided manager id doesn't belong to a manager");
 
     }
     @Test
@@ -213,12 +213,10 @@ public class EmployeeApiServiceTest {
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(streamManager); 
 
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(2,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Carlos's account details has been updated");
-
+        GenericResponse response=employeeApiService.updateEmployeeAccountName(2,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
+        
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("Carlos's account details has been updated");
         
     }
 
@@ -231,11 +229,10 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findByManagerId(1)).thenReturn(Collections.emptyList()); 
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(null);
 
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Stephen's account details has been updated");
+        GenericResponse response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
+        
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("Stephen's account details has been updated");
 
     
     }
@@ -246,6 +243,8 @@ public class EmployeeApiServiceTest {
         Exception exception = assertThrows(EntityNotFoundException.class, () -> {
             employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
         });        
+
+      
         assertThat(exception.getMessage()).isEqualTo("No employee Found");
 
     }
@@ -274,11 +273,12 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(5)).thenReturn(Optional.of(streamManager));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(5,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeAccountName(5,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
+        }); 
 
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Employee belongs to the given account");
+        assertThat(exception.getMessage()).isEqualTo("Employee belongs to the given account");
 
     
     }
@@ -304,11 +304,11 @@ public class EmployeeApiServiceTest {
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-SAAS-SALES")).thenReturn(Optional.of(new Stream("IND-ASP-SAAS-SALES","Aspire Software Service - Sales",new Account("IND-ASP-SAAS","Aspire Software Service"))));
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-SAAS-SALES");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-SAAS-SALES");;
+        });   
 
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Account and stream doesn't match");
+        assertThat(exception.getMessage()).isEqualTo("Account and stream doesn't match");
 
     
     }
@@ -321,11 +321,11 @@ public class EmployeeApiServiceTest {
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
         when(employeeJpaRepository.findByManagerId(1)).thenReturn(List.of(mockEmployee1)); 
         
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
+        }); 
 
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Account name of a manager with subbordinates can't be updated");
+        assertThat(exception.getMessage()).isEqualTo("Account name of a manager with subbordinates can't be updated");
 
     
     }
@@ -340,11 +340,30 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(streamManager);
        
 
-        ResponseEntity<GenericResponse> response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
+        }); 
 
-        GenericResponse responseBody = response.getBody();
-        assertThat(responseBody.getMessage()).isEqualTo("Manager already exists for the given stream");
+        assertThat(exception.getMessage()).isEqualTo("Manager already exists for the given stream");
+
+    
+    }
+
+    @Test
+    public void testUpdateEmployeeAccountName_AddingEmployeeToAStreamWithNoManager(){
+
+        when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
+        when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
+        when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
+        when(employeeJpaRepository.findByManagerId(1)).thenReturn(Collections.emptyList()); 
+        when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(null);
+       
+
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            employeeApiService.updateEmployeeAccountName(2,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
+        }); 
+
+        assertThat(exception.getMessage()).isEqualTo("Can't add employee to a stream with no manager");
 
     
     }
