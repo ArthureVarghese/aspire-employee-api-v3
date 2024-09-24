@@ -400,7 +400,8 @@ public class EmployeeApiServiceTest {
     }
     @Test
     void changeDesignationWithSameDesignation() {
-        Employee emp = new Employee(1,"empty_name",new Stream(),new Account(),1,"manager");
+        Employee emp = new Employee();
+        emp.setDesignation("manager");
         when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
         Exception ex = assertThrows(CustomException.class,
                 () -> employeeApiService.changeDesignation(0,"manager","",0));
@@ -434,8 +435,11 @@ public class EmployeeApiServiceTest {
     void changeDesignationToManager() {
         Employee emp = new Employee();
         emp.setDesignation("associate");
+        Stream stream = new Stream();
+        stream.setAccountId("ACC_ID");
+        stream.setAccount(new Account());
         when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
-        when(streamJpaRepository.findById(any())).thenReturn(Optional.of(new Stream("STR_ID","STR_NAME",new Account("ACC_ID","ACC_NAME"))));
+        when(streamJpaRepository.findById(any())).thenReturn(Optional.of(stream));
         when(employeeJpaRepository.findByStreamAndManagerId (any(),any())).thenReturn(null);
         when(employeeJpaRepository.save(any())).thenAnswer(invocation -> {
             Employee e = invocation.getArgument(0);
@@ -490,9 +494,13 @@ public class EmployeeApiServiceTest {
     @Test
     void changeDesignationToAssociate(){
         Employee emp = new Employee();
-        Employee manager = new Employee(2,"EMP_NAME",
-                new Stream("STR_ID","STR_NAME",new Account()),
-                new Account("ACC_ID","ACC_NAME"),0,"manager");
+        Stream stream = new Stream();
+        stream.setId("STR_ID");
+        Employee manager = new Employee();
+        manager.setStreamId("STR_ID");
+        manager.setStream(new Stream());
+        manager.setAccountId("ACC_ID");
+        manager.setAccount(new Account());
 
         emp.setDesignation("manager");
         when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp)).thenReturn(Optional.of(manager));

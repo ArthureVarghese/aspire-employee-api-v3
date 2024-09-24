@@ -23,8 +23,8 @@ public class EmployeeResponse {
         EmployeeDto dto = new EmployeeDto();
         dto.setId(employee.getId());
         dto.setName(employee.getName());
-        dto.setStreamId(employee.getStream() != null ? employee.getStream().getId() : null);
-        dto.setAccountId(employee.getAccount() != null ? employee.getAccount().getId() : null);
+        dto.setStreamId(employee.getStreamId());
+        dto.setAccountId(employee.getAccountId());
         dto.setManagerId(employee.getManagerId());
         dto.setDesignation(employee.getDesignation());
         return dto;

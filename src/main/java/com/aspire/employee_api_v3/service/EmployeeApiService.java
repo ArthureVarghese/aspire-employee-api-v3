@@ -160,8 +160,10 @@ public class EmployeeApiService {
                     throw new CustomException("Manager Already exist for the given Stream");
 
                 employee.setDesignation(designation.toUpperCase());
-                employee.setAccount(stream.getAccount());
+                employee.setStreamId(streamId);
                 employee.setStream(stream);
+                employee.setAccountId(stream.getAccountId());
+                employee.setAccount(stream.getAccount());
                 employee.setManagerId(0);
                 employeeRepo.save(employee);
                 break;
@@ -177,8 +179,10 @@ public class EmployeeApiService {
 
                 employee.setManagerId(managerId);
                 employee.setDesignation(designation.toUpperCase());
-                employee.setAccount(manager.getAccount());
+                employee.setStreamId(manager.getStreamId());
                 employee.setStream(manager.getStream());
+                employee.setAccountId(manager.getAccountId());
+                employee.setAccount(manager.getAccount());
                 employeeRepo.save(employee);
                 break;
             }

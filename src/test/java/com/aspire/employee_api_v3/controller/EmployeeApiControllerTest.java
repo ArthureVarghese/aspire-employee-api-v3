@@ -3,7 +3,6 @@ package com.aspire.employee_api_v3.controller;
 import com.aspire.employee_api_v3.model.Account;
 import com.aspire.employee_api_v3.model.Employee;
 import com.aspire.employee_api_v3.model.Stream;
-import com.aspire.employee_api_v3.repository.EmployeeJpaRepository;
 import com.aspire.employee_api_v3.service.EmployeeApiService;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
 import com.aspire.employee_api_v3.view.GenericResponse;
@@ -42,12 +41,10 @@ class EmployeeApiControllerTest {
     @MockBean
     EmployeeApiService employeeApiService;
 
-    @MockBean
-    private EmployeeJpaRepository employeeJpaRepository;
-
     @Test
     void getStreamsWithNoParams() {
-        StreamList streamList = new StreamList(List.of(new Stream("ID", "NAME", new Account())));
+        Stream stream = new Stream();
+        StreamList streamList = new StreamList(List.of(stream));
         when(employeeApiService.getAllStreams(any(Integer.class))).thenReturn(streamList);
 
         try {
