@@ -332,7 +332,7 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
-        when(employeeJpaRepository.findByManagerId(1)).thenReturn(List.of(mockEmployee1)); 
+        when(employeeJpaRepository.existsByManagerId(1)).thenReturn(true); 
         
         CustomException exception = assertThrows(CustomException.class, () -> {
             employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
@@ -352,7 +352,7 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
-        when(employeeJpaRepository.findByManagerId(1)).thenReturn(Collections.emptyList()); 
+        when(employeeJpaRepository.existsByManagerId(1)).thenReturn(false); 
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(streamManager);
        
 
