@@ -1,9 +1,5 @@
 package com.aspire.employee_api_v3.service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.aspire.employee_api_v3.exceptions.CustomException;
 import com.aspire.employee_api_v3.model.Account;
 import com.aspire.employee_api_v3.model.Employee;
@@ -13,25 +9,26 @@ import com.aspire.employee_api_v3.repository.EmployeeJpaRepository;
 import com.aspire.employee_api_v3.repository.StreamJpaRepository;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
 import com.aspire.employee_api_v3.view.GenericResponse;
-
 import com.aspire.employee_api_v3.view.StreamList;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-
-import jakarta.persistence.EntityNotFoundException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 
 public class EmployeeApiServiceTest {
@@ -382,4 +379,131 @@ public class EmployeeApiServiceTest {
         assertThat(streamList.getStreams().size()).isEqualTo(1);
     }
 
+
+    @Test
+    void changeDesignationWithoutEmployeeId() {
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.empty());
+        Exception ex = assertThrows(EntityNotFoundException.class,
+                () -> employeeApiService.changeDesignation(0,"","",0));
+
+        assertTrue(ex.getMessage().contains("Found"));
+    }
+
+    @Test
+    void changeDesignationWithInvalidDesignation() {
+        Employee emp = new Employee();
+        emp.setDesignation("associate");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+        Exception ex = assertThrows(CustomException.class,
+                () -> employeeApiService.changeDesignation(0,"unknown_designation","",0));
+        assertTrue(ex.getMessage().contains("No Such Designation Found"));
+    }
+    @Test
+    void changeDesignationWithSameDesignation() {
+        Employee emp = new Employee(1,"empty_name",new Stream(),new Account(),1,"manager");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+        Exception ex = assertThrows(CustomException.class,
+                () -> employeeApiService.changeDesignation(0,"manager","",0));
+        assertTrue(ex.getMessage().contains("Same"));
+    }
+
+    @Test
+    void changeDesignationToManagerWithoutStreamId() {
+        Employee emp = new Employee();
+        emp.setDesignation("associate");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+        Exception ex = assertThrows(EntityNotFoundException.class,
+                () -> employeeApiService.changeDesignation(0,"manager","",0));
+        assertTrue(ex.getMessage().contains("No Such"));
+    }
+
+    @Test
+    void changeDesignationToManagerWithManagerAlreadyExists() {
+        Employee emp = new Employee();
+        emp.setDesignation("associate");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+        when(streamJpaRepository.findById(any())).thenReturn(Optional.of(new Stream()));
+        when(employeeJpaRepository.findByStreamAndManagerId (any(),any())).thenReturn(emp);
+
+        Exception ex = assertThrows(CustomException.class,
+                () -> employeeApiService.changeDesignation(0,"manager","",0));
+        assertTrue(ex.getMessage().contains("Already"));
+    }
+
+    @Test
+    void changeDesignationToManager() {
+        Employee emp = new Employee();
+        emp.setDesignation("associate");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+        when(streamJpaRepository.findById(any())).thenReturn(Optional.of(new Stream("STR_ID","STR_NAME",new Account("ACC_ID","ACC_NAME"))));
+        when(employeeJpaRepository.findByStreamAndManagerId (any(),any())).thenReturn(null);
+        when(employeeJpaRepository.save(any())).thenAnswer(invocation -> {
+            Employee e = invocation.getArgument(0);
+            assertEquals("MANAGER", e.getDesignation());
+            assertEquals("STR_ID", e.getStream().getId());
+            assertEquals("ACC_ID", e.getAccount().getId());
+            return null;
+        });
+        employeeApiService.changeDesignation(0,"manager","",0);
+    }
+
+    @Test
+    void changeDesignationToAssociateWithoutEmployeeIdAndManagerIdSame() {
+        Employee emp = new Employee();
+        emp.setDesignation("manager");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp));
+
+        Exception ex = assertThrows(CustomException.class,
+                () -> employeeApiService.changeDesignation(1,"associate","",1));
+        assertTrue(ex.getMessage().contains("Same"));
+
+
+    }
+
+    @Test
+    void changeDesignationToAssociateWithoutManager() {
+        Employee emp = new Employee();
+        emp.setDesignation("manager");
+        when(employeeJpaRepository.findById(anyInt()))
+                .thenReturn(Optional.of(emp))
+                .thenReturn(Optional.empty());
+
+        Exception ex = assertThrows(EntityNotFoundException.class,
+                () -> employeeApiService.changeDesignation(1,"associate","",5));
+        assertTrue(ex.getMessage().contains("No Such"));
+    }
+
+    @Test
+    void changeDesignationToAssociateWithManagerHavingEmployees() {
+        Employee emp = new Employee();
+        emp.setDesignation("manager");
+        when(employeeJpaRepository.findById(anyInt()))
+                .thenReturn(Optional.of(emp));
+        when(employeeJpaRepository.existsByManagerId(anyInt())).thenReturn(true);
+
+        Exception ex = assertThrows(CustomException.class,
+                () -> employeeApiService.changeDesignation(1,"associate","",5));
+        assertTrue(ex.getMessage().contains("Cannot change designation"));
+
+    }
+
+    @Test
+    void changeDesignationToAssociate(){
+        Employee emp = new Employee();
+        Employee manager = new Employee(2,"EMP_NAME",
+                new Stream("STR_ID","STR_NAME",new Account()),
+                new Account("ACC_ID","ACC_NAME"),0,"manager");
+
+        emp.setDesignation("manager");
+        when(employeeJpaRepository.findById(anyInt())).thenReturn(Optional.of(emp)).thenReturn(Optional.of(manager));
+        when(employeeJpaRepository.existsByManagerId(anyInt())).thenReturn(false);
+        when(employeeJpaRepository.save(any())).thenAnswer(invocation -> {
+            Employee e = invocation.getArgument(0);
+            assertEquals("ASSOCIATE", e.getDesignation());
+            assertEquals("STR_ID", e.getStream().getId());
+            assertEquals("ACC_ID", e.getAccount().getId());
+            return null;
+        });
+        employeeApiService.changeDesignation(1,"associate","",0);
+    }
 }

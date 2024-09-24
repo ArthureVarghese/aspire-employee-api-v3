@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -174,4 +174,22 @@ class EmployeeApiControllerTest {
     }
 
 
+    @Test
+    void updateEmployeeDesignation() {
+
+        GenericResponse genericResponse = new GenericResponse("Steve Rogers's account details has been updated");
+        when(employeeApiService.changeDesignation(anyInt(),anyString(),any(),any())).thenReturn(genericResponse);
+
+        try {
+            mvc.perform(MockMvcRequestBuilders.put("/api/v3/employees/designation")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .queryParam("employee-id","1")
+                            .queryParam("designation","associate")
+                    )
+                    .andExpect(status().isOk());
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
 }

@@ -57,6 +57,21 @@ public class EmployeeApiController {
         return employeeApiService.updateEmployeeAccountName(employeeId, accountName, streamId);
     }
 
+    @PutMapping(path="/employees/designation",produces = "application/json")
+    @ResponseStatus (HttpStatus.OK)
+    @ResponseBody
+    public GenericResponse updateEmployeeDesignation(
+            @RequestParam(name = "employee-id", required = true) Integer employeeId,
+            @RequestParam(name = "designation", required = true) String designation,
+            @RequestParam(name = "stream-id", required = false) String streamId,
+            @RequestParam(name = "manager-id", required = false) Integer managerId
+    ){
+
+        return employeeApiService.changeDesignation(employeeId,designation,streamId,managerId);
+
+    }
+
+
     // Throws error if page number is non-numeric or less than 0
     private int parseAndValidatePageNumber(String pageNumber) {
         int number = Integer.parseInt(pageNumber);
