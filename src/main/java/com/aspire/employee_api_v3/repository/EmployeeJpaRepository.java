@@ -15,8 +15,6 @@ public interface EmployeeJpaRepository extends JpaRepository<Employee, Integer> 
 
     List<Employee> findByNameStartingWith(String letter,Pageable pageable);
 
-    List<Employee> findByManagerId(Integer managerId);
-
     Employee findByStreamAndManagerId(Stream stream, Integer managerId);
 
     boolean existsByManagerId(Integer managerId);

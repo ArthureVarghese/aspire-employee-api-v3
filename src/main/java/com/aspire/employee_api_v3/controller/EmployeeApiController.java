@@ -25,7 +25,6 @@ public class EmployeeApiController {
     @ResponseStatus (HttpStatus.OK)
     @ResponseBody
     public EmployeeResponse getEmployeeDetails(@RequestParam (name="starts-with",required = false) String letter, @RequestParam (name="page",defaultValue = "1") String page) throws IllegalArgumentException {
-        // return employeeApiService.getEmployeeDetails(letter, parseAndValidatePageNumber(page));
         return employeeApiService.getEmployeeDetails(letter,parseAndValidatePageNumber(page));
         
     }

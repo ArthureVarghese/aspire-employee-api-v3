@@ -46,11 +46,8 @@ public class EmployeeApiService {
             return new EmployeeResponse(employees.getContent());
         }
 
-        List<Employee> employee = employeeRepo.findByNameStartingWith(letter,pageRequest);
-        if(employee.isEmpty())
-            throw new EntityNotFoundException("No employee with given credentials");
-        return new EmployeeResponse(employee);
-
+        List<Employee> employees = employeeRepo.findByNameStartingWith(letter,pageRequest);
+        return new EmployeeResponse(employees);
 
     }
 
@@ -62,7 +59,7 @@ public class EmployeeApiService {
         return new StreamList(streams.stream().toList());
     }
 
-
+    @Transactional
     public GenericResponse updateEmployeeManager(Integer employeeId, Integer managerId) {
 
         Employee employee = employeeRepo.findById(employeeId)
@@ -98,7 +95,7 @@ public class EmployeeApiService {
 
     }
 
-
+    @Transactional
     public GenericResponse updateEmployeeAccountName(Integer employeeId, String accountName,
             String streamId) {
 
@@ -124,7 +121,7 @@ public class EmployeeApiService {
                 throw new CustomException("Manager already exists for the given stream");
 
             if(employeeRepo.existsByManagerId(employeeId))
-                throw new CustomException("Account name of a manager with subbordinates can't be updated");
+                throw new CustomException("Account name of a manager with subordinates can't be updated");
 
         }
 
