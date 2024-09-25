@@ -1,18 +1,9 @@
 package com.aspire.employee_api_v3.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity(name="employee")
 public class Employee {
 
@@ -21,13 +12,19 @@ public class Employee {
     private Integer id;
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "stream_id", referencedColumnName = "id")
-    private Stream stream;  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stream_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Stream stream;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;  
+    @Column(name = "stream_id")
+    private String streamId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Account account;
+
+    @Column(name = "account_id")
+    private String accountId;
 
     private Integer managerId;
     private String designation;

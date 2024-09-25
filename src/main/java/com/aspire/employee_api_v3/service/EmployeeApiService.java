@@ -88,7 +88,9 @@ public class EmployeeApiService {
 
         employee.setManagerId(managerId);
         employee.setStream(newManager.getStream());
+        employee.setStreamId(newManager.getStreamId());
         employee.setAccount(newManager.getAccount());
+        employee.setAccountId(newManager.getAccountId());
         employeeRepo.save(employee);
 
         return new GenericResponse(employee.getName()+"'s manager details has been updated");
@@ -105,13 +107,13 @@ public class EmployeeApiService {
         Account account=accountJpaRepository.findByName(accountName)
             .orElseThrow(() -> new EntityNotFoundException("Account Name doesn't exist"));
 
-        if(employee.getAccount().getId().equals(account.getId()))
+        if(employee.getAccountId().equals(account.getId()))
             throw new CustomException("Employee belongs to the given account");
 
         Stream stream=streamJpaRepository.findById(streamId)
             .orElseThrow(() -> new EntityNotFoundException("Stream doesn't exist"));
 
-        if(!stream.getAccount().getId().equals(account.getId()))
+        if(!stream.getAccountId().equals(account.getId()))
             throw new CustomException("Account and stream doesn't match");
 
         Employee streamManager=employeeRepo.findByStreamAndManagerId(stream,0);
@@ -134,7 +136,9 @@ public class EmployeeApiService {
         }
 
         employee.setAccount(account);
+        employee.setAccountId(account.getId());
         employee.setStream(stream);
+        employee.setStreamId(streamId);
         employeeRepo.save(employee);
 
         return new GenericResponse(employee.getName()+"'s account details has been updated");
@@ -160,8 +164,10 @@ public class EmployeeApiService {
                     throw new CustomException("Manager Already exist for the given Stream");
 
                 employee.setDesignation(designation.toUpperCase());
-                employee.setAccount(stream.getAccount());
+                employee.setStreamId(streamId);
                 employee.setStream(stream);
+                employee.setAccountId(stream.getAccountId());
+                employee.setAccount(stream.getAccount());
                 employee.setManagerId(0);
                 employeeRepo.save(employee);
                 break;
@@ -177,8 +183,10 @@ public class EmployeeApiService {
 
                 employee.setManagerId(managerId);
                 employee.setDesignation(designation.toUpperCase());
-                employee.setAccount(manager.getAccount());
+                employee.setStreamId(manager.getStreamId());
                 employee.setStream(manager.getStream());
+                employee.setAccountId(manager.getAccountId());
+                employee.setAccount(manager.getAccount());
                 employeeRepo.save(employee);
                 break;
             }
