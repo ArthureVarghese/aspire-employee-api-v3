@@ -1,9 +1,7 @@
 package com.aspire.employee_api_v3.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Entity(name="employee")

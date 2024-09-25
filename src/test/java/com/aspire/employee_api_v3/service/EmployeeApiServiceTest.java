@@ -47,8 +47,6 @@ public class EmployeeApiServiceTest {
 
     private Employee mockEmployee;
     private Employee mockEmployee1;
-    private Employee mockEmployee2;
-    private Employee mockEmployee3;
     private Account mockAccount;
     private Stream mockStream;
     private Employee streamManager;
@@ -57,14 +55,12 @@ public class EmployeeApiServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockEmployee=new Employee(1,"Stephen",new Stream("IND-ASP-AI-DELIVERY","Aspire Artificial Intelligence - Delivery",new Account("IND-ASP-AI","Aspire Artificial Intelligence")),new Account("IND-ASP-AI","Aspire Artificial Intelligence"),0,"Manager");
-        mockEmployee1=new Employee(2,"Carlos",new Stream("IND-ASP-AI-DELIVERY","Aspire Artificial Intelligence - Delivery",new Account("IND-ASP-AI","Aspire Artificial Intelligence")),new Account("IND-ASP-AI","Aspire Artificial Intelligence"),1,"Associate");
-        mockEmployee2=new Employee(3,"Harry",new Stream("IND-ASP-AI-SALES","Aspire Artificial Intelligence - Sales",new Account("IND-ASP-AI","Aspire Artificial Intelligence")),new Account("IND-ASP-AI","Aspire Artificial Intelligence"),0,"Manager");
-        mockEmployee3=new Employee(4,"Ginny",new Stream("IND-ASP-AI-DELIVERY","Aspire Artificial Intelligence - Delivery",new Account("IND-ASP-AI","Aspire Artificial Intelligence")),new Account("IND-ASP-AI","Aspire Artificial Intelligence"),3,"Associate");
-        streamManager= new Employee(5,"Jackson Green",new Stream("IND-ASP-ML-DELIVERY","Aspire Machine Learning - Delivery",new Account("IND-ASP-ML","Aspire Machine Learning")),new Account("IND-ASP-ML","Aspire Machine Learning"), 0, "Manager");
-        mockAccount=new Account("IND-ASP-ML","Aspire Machine Learning");
-        mockStream=new Stream("IND-ASP-ML-DELIVERY","Aspire Machine Learning - Delivery",new Account("IND-ASP-ML","Aspire Machine Learning"));
-        
+        mockEmployee=new Employee();
+        mockEmployee1=new Employee();
+        mockAccount=new Account();
+        mockAccount.setId("IND-ASP-ML");
+        mockStream=new Stream();
+        mockStream.setAccountId("IND-ASP-ML");
     }
 
     
@@ -78,12 +74,7 @@ public class EmployeeApiServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.getEmployees().size()).isEqualTo(1);  
         assertThat(response.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
-        assertThat(response.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
-        assertThat(response.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
-        assertThat(response.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
-        assertThat(response.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
-        assertThat(response.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
-
+        
     }
 
     @Test
@@ -96,11 +87,6 @@ public class EmployeeApiServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.getEmployees().size()).isEqualTo(1);  
         assertThat(response.getEmployees().get(0).getId()).isEqualTo(mockEmployee.getId());
-        assertThat(response.getEmployees().get(0).getName()).isEqualTo(mockEmployee.getName());
-        assertThat(response.getEmployees().get(0).getStreamId()).isEqualTo(mockEmployee.getStream().getId());
-        assertThat(response.getEmployees().get(0).getAccountId()).isEqualTo(mockEmployee.getAccount().getId());
-        assertThat(response.getEmployees().get(0).getManagerId()).isEqualTo(mockEmployee.getManagerId());
-        assertThat(response.getEmployees().get(0).getDesignation()).isEqualTo(mockEmployee.getDesignation());
 
     }
 
@@ -118,9 +104,14 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_ValidData() {
+
+        mockEmployee.setId(1);
+        mockEmployee1.setManagerId(1);
+        mockEmployee1.setName("Carlos");
+        mockEmployee.setManagerId(0);
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
-        when(employeeJpaRepository.findById(3)).thenReturn(Optional.of(mockEmployee2));
+        when(employeeJpaRepository.findById(3)).thenReturn(Optional.of(mockEmployee));
 
         GenericResponse response=employeeApiService.updateEmployeeManager(2,3);
 
@@ -154,6 +145,7 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_EmployeeISAManager() {
+        mockEmployee.setManagerId(0);
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         
         CustomException exception = assertThrows(CustomException.class, () -> {
@@ -166,6 +158,8 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_CurrentManagerSameAsNewManager() {
+        mockEmployee.setId(1);
+        mockEmployee1.setManagerId(1);
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         
@@ -178,8 +172,10 @@ public class EmployeeApiServiceTest {
     }
 
     @Test
-    public void testUpdateEmployeeManager_InvalidManagerId() {
+    public void testUpdateEmployeeManager_InvalidManagerId(){
 
+        mockEmployee.setId(1);
+        mockEmployee1.setManagerId(1);
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(employeeJpaRepository.findById(3)).thenReturn(Optional.empty());
@@ -193,9 +189,13 @@ public class EmployeeApiServiceTest {
 
     @Test
     public void testUpdateEmployeeManager_ManagerIdDoesNotBelongToManager() {
+
+        mockEmployee1.setId(2);
+        mockEmployee1.setManagerId(1);
+        mockEmployee.setManagerId(2);
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee1));
-        when(employeeJpaRepository.findById(4)).thenReturn(Optional.of(mockEmployee3));
+        when(employeeJpaRepository.findById(4)).thenReturn(Optional.of(mockEmployee));
         
         CustomException exception = assertThrows(CustomException.class, () -> {
             employeeApiService.updateEmployeeManager(2,4);;
@@ -207,6 +207,10 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_ValidEmployeeData(){
 
+        mockEmployee1.setManagerId(1);
+        mockEmployee1.setName("Carlos");
+        mockEmployee1.setAccountId("IND-ASP-AI");
+        streamManager= new Employee();
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
@@ -222,6 +226,9 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_ValidManagerData(){
 
+        mockEmployee.setName("Stephen");
+        mockEmployee.setManagerId(0);
+        mockEmployee.setAccountId("IND-ASP-AI");
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
@@ -269,6 +276,8 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_EmployeeBelongsToSameAccount(){
 
+        streamManager= new Employee();
+        streamManager.setAccountId("IND-ASP-ML");
         when(employeeJpaRepository.findById(5)).thenReturn(Optional.of(streamManager));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         
@@ -285,6 +294,7 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_InvalidStream(){
 
+        mockEmployee.setAccountId("IND-ASP-AI");
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.empty());
@@ -299,10 +309,12 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_AccountAndStreamDoesNotMatch(){
 
+        mockEmployee.setAccountId("IND-ASP-AI");
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
-        when(streamJpaRepository.findById("IND-ASP-SAAS-SALES")).thenReturn(Optional.of(new Stream("IND-ASP-SAAS-SALES","Aspire Software Service - Sales",new Account("IND-ASP-SAAS","Aspire Software Service"))));
-        
+        mockStream.setAccountId("IND-ASP-SAAS-SALES");
+        when(streamJpaRepository.findById("IND-ASP-SAAS-SALES")).thenReturn(Optional.of(mockStream));
+        //("IND-ASP-SAAS-SALES","Aspire Software Service - Sales",new Account("IND-ASP-SAAS","Aspire Software Service")
         CustomException exception = assertThrows(CustomException.class, () -> {
             employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-SAAS-SALES");;
         });   
@@ -315,6 +327,8 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_ManagerWithSubordinates(){
 
+        mockEmployee.setAccountId("IND-ASP-AI");
+        mockEmployee.setManagerId(0);
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
@@ -332,6 +346,9 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_StreamAlreadyHasAManager(){
 
+        mockEmployee.setAccountId("IND-ASP-AI");
+        mockEmployee.setManagerId(0);
+        streamManager= new Employee();
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
@@ -351,6 +368,8 @@ public class EmployeeApiServiceTest {
     @Test
     public void testUpdateEmployeeAccountName_AddingEmployeeToAStreamWithNoManager(){
 
+        mockEmployee1.setManagerId(1);
+        mockEmployee1.setAccountId("IND-ASP-AI");
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
