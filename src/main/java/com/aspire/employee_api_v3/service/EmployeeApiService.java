@@ -10,6 +10,7 @@ import com.aspire.employee_api_v3.repository.EmployeeJpaRepository;
 import com.aspire.employee_api_v3.view.EmployeeResponse;
 import com.aspire.employee_api_v3.view.GenericResponse;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -122,9 +123,7 @@ public class EmployeeApiService {
             if(streamManager!=null)
                 throw new CustomException("Manager already exists for the given stream");
 
-            List<Employee> employeesManagedByManager=employeeRepo.findByManagerId(employeeId);
-
-            if(!employeesManagedByManager.isEmpty())
+            if(employeeRepo.existsByManagerId(employeeId))
                 throw new CustomException("Account name of a manager with subbordinates can't be updated");
 
         }

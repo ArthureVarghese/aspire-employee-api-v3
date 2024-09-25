@@ -26,9 +26,8 @@ public class EmployeeApiController {
     @ResponseBody
     public EmployeeResponse getEmployeeDetails(@RequestParam (name="starts-with",required = false) String letter, @RequestParam (name="page",defaultValue = "1") String page) throws IllegalArgumentException {
         // return employeeApiService.getEmployeeDetails(letter, parseAndValidatePageNumber(page));
-        EmployeeResponse employeeresponse = employeeApiService.getEmployeeDetails(letter,parseAndValidatePageNumber(page));
-        System.out.print(employeeresponse);
-        return employeeresponse;
+        return employeeApiService.getEmployeeDetails(letter,parseAndValidatePageNumber(page));
+        
     }
 
     @GetMapping (path = "/streams", produces = "application/json")
