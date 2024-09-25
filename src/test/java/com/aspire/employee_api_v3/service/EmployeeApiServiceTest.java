@@ -463,11 +463,11 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.save(any())).thenAnswer(invocation -> {
             Employee e = invocation.getArgument(0);
             assertEquals("MANAGER", e.getDesignation());
-            assertEquals("STR_ID", e.getStream().getId());
-            assertEquals("ACC_ID", e.getAccount().getId());
+            assertEquals("STR_ID", e.getStreamId());
+            assertEquals("ACC_ID", e.getAccountId());
             return null;
         });
-        employeeApiService.changeDesignation(0,"manager","",0);
+        employeeApiService.changeDesignation(0,"manager","STR_ID",0);
     }
 
     @Test
@@ -527,8 +527,8 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.save(any())).thenAnswer(invocation -> {
             Employee e = invocation.getArgument(0);
             assertEquals("ASSOCIATE", e.getDesignation());
-            assertEquals("STR_ID", e.getStream().getId());
-            assertEquals("ACC_ID", e.getAccount().getId());
+            assertEquals("STR_ID", e.getStreamId());
+            assertEquals("ACC_ID", e.getAccountId());
             return null;
         });
         employeeApiService.changeDesignation(1,"associate","",0);
