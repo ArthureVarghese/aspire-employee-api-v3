@@ -94,11 +94,11 @@ public class EmployeeApiServiceTest {
     public void testGetEmployeeDetails_InvalidLetter() throws Exception {
         
         when(employeeJpaRepository.findByNameStartingWith("K", PageRequest.of(0, 25))).thenReturn(Collections.emptyList());
-        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
-            employeeApiService.getEmployeeDetails("K",0);
-        });        
-        assertThat(exception.getMessage()).isEqualTo("No employee with given credentials");
 
+        EmployeeResponse response=employeeApiService.getEmployeeDetails("K",0);
+
+        assertThat(response.getEmployees()).isEmpty();
+    
     }
 
 
@@ -232,7 +232,7 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
-        when(employeeJpaRepository.findByManagerId(1)).thenReturn(Collections.emptyList()); 
+        when(employeeJpaRepository.existsByManagerId(1)).thenReturn(false); 
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(null);
 
         GenericResponse response=employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");
@@ -338,7 +338,7 @@ public class EmployeeApiServiceTest {
             employeeApiService.updateEmployeeAccountName(1,"Aspire Machine Learning","IND-ASP-ML-DELIVERY");;
         });
 
-        assertThat(exception.getMessage()).isEqualTo("Account name of a manager with subbordinates can't be updated");
+        assertThat(exception.getMessage()).isEqualTo("Account name of a manager with subordinates can't be updated");
 
 
     }
@@ -373,7 +373,7 @@ public class EmployeeApiServiceTest {
         when(employeeJpaRepository.findById(2)).thenReturn(Optional.of(mockEmployee1));
         when(accountJpaRepository.findByName("Aspire Machine Learning")).thenReturn(Optional.of(mockAccount));
         when(streamJpaRepository.findById("IND-ASP-ML-DELIVERY")).thenReturn(Optional.of(mockStream));
-        when(employeeJpaRepository.findByManagerId(1)).thenReturn(Collections.emptyList()); 
+        when(employeeJpaRepository.existsByManagerId(1)).thenReturn(false); 
         when(employeeJpaRepository.findByStreamAndManagerId(mockStream, 0)).thenReturn(null);
        
 
