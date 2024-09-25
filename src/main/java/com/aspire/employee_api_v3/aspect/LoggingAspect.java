@@ -16,7 +16,8 @@ public class LoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
 
-    @Around("execution(public * com.aspire.employee_api_v3.service.EmployeeApiService.*(..))")
+    @Around("execution(public * com.aspire.employee_api_v3.service.EmployeeApiService.*(..)) ||" + 
+    "execution(* com.aspire.employee_api_v3.repository.*.*(..))")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 
         long start = System.currentTimeMillis();
