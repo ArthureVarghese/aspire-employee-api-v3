@@ -34,7 +34,7 @@ public class EmployeeApiController {
     @ResponseBody
     public StreamList getStreams(
             @RequestParam (name = "page-number", required = false, defaultValue = "1") String pageNumber) {
-        return employeeApiService.getAllStreams(parseAndValidatePageNumber(pageNumber));
+            return employeeApiService.getAllStreams(parseAndValidatePageNumber(pageNumber));
     }
 
     @PutMapping (path = "/employees/manager", produces = "application/json")

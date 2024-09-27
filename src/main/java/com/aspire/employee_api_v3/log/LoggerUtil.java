@@ -8,13 +8,14 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class Logger {
+public class LoggerUtil {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Logger.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoggerUtil.class);
 
     @Around("execution(public * com.aspire.employee_api_v3.service.EmployeeApiService.*(..)) ||" +
     "execution(* com.aspire.employee_api_v3.repository.*.*(..))")
@@ -31,16 +32,6 @@ public class Logger {
         long executionTime = System.currentTimeMillis() - start;
 
         logger.info("Method '{}' in class '{}' executed in {} ms", joinPoint.getSignature().getName(), joinPoint.getSignature().getDeclaringType().getSimpleName(), executionTime);
-        return proceed;
-    }
-
-    @Around("execution(public * com.aspire.employee_api_v3.cache.CacheImplementer.*(..))")
-    public Object logWhenUsingCache(ProceedingJoinPoint joinPoint) throws Throwable{
-        long start = System.currentTimeMillis();
-        logger.info("Fetching from Cache for {}",joinPoint.getSignature().getName());
-        Object proceed = joinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - start;
-        logger.info("Took Time {} ms",executionTime);
         return proceed;
     }
 
