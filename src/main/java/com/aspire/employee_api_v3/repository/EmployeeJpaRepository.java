@@ -2,6 +2,7 @@ package com.aspire.employee_api_v3.repository;
 
 import java.util.List;
 
+import com.aspire.employee_api_v3.cache.annotation.Cached;
 import com.aspire.employee_api_v3.model.Employee;
 import com.aspire.employee_api_v3.model.Stream;
 
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeeJpaRepository extends JpaRepository<Employee, Integer> {
-
 
     List<Employee> findByNameStartingWith(String letter,Pageable pageable);
 

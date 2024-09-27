@@ -2,6 +2,9 @@ package com.aspire.employee_api_v3.service;
 
 import java.util.List;
 
+import com.aspire.employee_api_v3.cache.annotation.CacheDelete;
+import com.aspire.employee_api_v3.cache.annotation.CacheUpdate;
+import com.aspire.employee_api_v3.cache.annotation.Cached;
 import com.aspire.employee_api_v3.exceptions.CustomException;
 import com.aspire.employee_api_v3.model.Account;
 import com.aspire.employee_api_v3.model.Employee;
@@ -37,6 +40,7 @@ public class EmployeeApiService {
     @Autowired
     AccountJpaRepository accountJpaRepository;
 
+    @Cached
     public EmployeeResponse getEmployeeDetails(String letter, Integer page) throws IllegalArgumentException {
 
         Pageable pageRequest = PageRequest.of(page, 25);
@@ -51,7 +55,7 @@ public class EmployeeApiService {
 
     }
 
-
+    @Cached
     public StreamList getAllStreams(int pageNumber) {
 
         int PAGE_SIZE = 25;
@@ -59,6 +63,7 @@ public class EmployeeApiService {
         return new StreamList(streams.stream().toList());
     }
 
+    @CacheDelete
     @Transactional
     public GenericResponse updateEmployeeManager(Integer employeeId, Integer managerId) {
 
@@ -95,6 +100,7 @@ public class EmployeeApiService {
 
     }
 
+    @CacheDelete
     @Transactional
     public GenericResponse updateEmployeeAccountName(Integer employeeId, String accountName,
             String streamId) {
@@ -140,6 +146,7 @@ public class EmployeeApiService {
         return new GenericResponse(employee.getName()+"'s account details has been updated");
     }
 
+    @CacheDelete
     @Transactional
     public GenericResponse changeDesignation(Integer employeeId, String designation, String streamId, Integer managerId) {
 
