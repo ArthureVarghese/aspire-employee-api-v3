@@ -54,7 +54,10 @@ public class CacheImplementer {
     private String keyGenerator(Object[] args, String name){
         StringBuilder stringBuilder = new StringBuilder(name);
         for (Object arg : args) {
-            stringBuilder.append(arg.toString());
+            if(arg !=null)
+                stringBuilder.append(arg.toString());
+            else
+                stringBuilder.append("defaultValue");
         }
         return stringBuilder.toString();
     }
