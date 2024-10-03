@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Aspect
 @Component
 public class CacheImplementer {
@@ -53,6 +55,11 @@ public class CacheImplementer {
 
     private String keyGenerator(Object[] args, String name){
         StringBuilder stringBuilder = new StringBuilder(name);
+
+        if(args == null || args.length == 0){
+            stringBuilder.append("DEFAULT_VALUE_FOR_NO_ARGUMENT");
+            return stringBuilder.toString();
+        }
         for (Object arg : args) {
             if(arg !=null)
                 stringBuilder.append(arg.toString());
