@@ -1,6 +1,5 @@
 package com.aspire.employee_api_v3.cache;
 
-import com.aspire.employee_api_v3.log.LoggerUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Aspect
 @Component
@@ -53,15 +50,19 @@ public class CacheImplementer {
         return joinPoint.proceed();
     }
 
-    private String keyGenerator(Object[] args, String name){
+    private String keyGenerator(Object[] args, String name) {
         StringBuilder stringBuilder = new StringBuilder(name);
 
         if(args == null || args.length == 0){
             stringBuilder.append("DEFAULT_VALUE_FOR_NO_ARGUMENT");
             return stringBuilder.toString();
         }
+
         for (Object arg : args) {
-            stringBuilder.append(arg.toString());
+            if(arg !=null)
+                stringBuilder.append(arg.toString());
+            else
+                stringBuilder.append("defaultValue");
         }
         return stringBuilder.toString();
     }
