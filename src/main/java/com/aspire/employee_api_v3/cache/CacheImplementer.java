@@ -51,8 +51,14 @@ public class CacheImplementer {
         return joinPoint.proceed();
     }
 
-    private String keyGenerator(Object[] args, String name){
+    private String keyGenerator(Object[] args, String name) {
         StringBuilder stringBuilder = new StringBuilder(name);
+
+        if(args == null || args.length == 0){
+            stringBuilder.append("DEFAULT_VALUE_FOR_NO_ARGUMENT");
+            return stringBuilder.toString();
+        }
+
         for (Object arg : args) {
             if(arg !=null)
                 stringBuilder.append(arg.toString());
